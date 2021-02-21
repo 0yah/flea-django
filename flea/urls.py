@@ -19,3 +19,21 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+#Import urls from an app
+from django.urls import include
+urlpatterns += [
+    path('catalog/',include('catalog.urls')),
+]
+
+#Redirect to the catalog app
+from django.views.generic import RedirectView
+urlpatterns +=[
+    path('',RedirectView.as_view(url="catalog/",permanent=True))
+]
+
+#Serve static files(CSS,Javascript,images)
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
