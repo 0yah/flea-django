@@ -34,6 +34,11 @@ class Book(models.Model):
         # Parameters (View Name,model field name)
         return reverse('book-detail', args=[str(self.id)])
 
+    def display_genre(self):
+        """Create a string for the Genre. This is required to display genre in Admin."""
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+    display_genre.short_description = 'Genre'
 
 class BookInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,
@@ -60,6 +65,8 @@ class BookInstance(models.Model):
         return f'{self.id} ({self.book.title})'
 
 
+
+
 class Language(models.Model):
     MY_LANGUAGES = (
         ('Eng', 'English'),
@@ -67,8 +74,10 @@ class Language(models.Model):
         ('De', 'German'),
         ('Fr', 'French'),
     )
-    language = models.CharField(max_length=3,default='Eng',choices=MY_LANGUAGES)
+    name = models.CharField(max_length=3,default='Eng',choices=MY_LANGUAGES)
 
+    def __str__(self):
+        return self.name
 
 class Author(models.Model):
     """Model representing an author."""
