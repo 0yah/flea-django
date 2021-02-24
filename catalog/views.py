@@ -1,12 +1,12 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render,HttpResponse
 from .models import Book,Author,BookInstance,Genre
+from django.views import generic
 
 # Create your views here.
 def index(request):
 
     #Get the number of main objects from the models
-
     num_books =Book.objects.all().count()
     num_book_instances = BookInstance.objects.all().count()
     num_authors = Author.objects.count()
@@ -27,3 +27,25 @@ def index(request):
         'title':'Local Library'
     }
     return render(request,'catalog/index.html',context=context)
+
+class BookListView(generic.ListView):
+    model = Book
+    contex_object_name = "book_list"
+    template_name = "catalog/books_list.html"
+
+class BookDetailView(generic.DetailView):
+
+    model = Book
+    template_name = "catalog/books_detail.html"
+
+
+class AuthorDetailView(generic.DetailView):
+
+    model = Author
+    template_name = "catalog/author_detail.html"
+
+class AuthorListView(generic.ListView):
+    model = Author
+    contex_object_name = "author_list"
+    template_name = "catalog/author_list.html"
+    

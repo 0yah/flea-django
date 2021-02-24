@@ -1,0 +1,13 @@
+{%extends 'base.html'%}
+
+{%block content%}
+<h1>{{author.first_name}} {{author.last_name}}</h1>
+
+{%for book in author.book_set.all%}
+<div class="jumbotron">
+    <span>{{book.title}}</span>
+    <p class="lead">{{book.summary}}</p>
+</div>
+
+{%endfor%}
+{%endblock%}
