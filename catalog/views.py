@@ -1,9 +1,14 @@
+from datetime import datetime
 from django.db import models
-from django.http.response import HttpResponse
-from django.shortcuts import render,HttpResponse
+from django.http.response import HttpResponse,HttpResponseRedirect
+from django.shortcuts import render,get_object_or_404
+from django.urls import reverse,reverse_lazy
 from .models import Book,Author,BookInstance,Genre
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
+from .forms import RenewBookForm
+from django.contrib.auth.decorators import login_required,permission_required
+from django.views.generic.edit import CreateView,UpdateView,DeleteView
 
 # Create your views here.
 def index(request):
@@ -72,3 +77,83 @@ class LibrarianViewListView(PermissionRequiredMixin,generic.ListView):
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o')
 
+
+@login_required
+@permission_required('catalog.can_mark_returned', raise_exception=True)
+def renew_book_librarian(request,pk):
+    book_instance = get_object_or_404(BookInstance,pk=pk)
+
+
+    if request.method == "POST":
+
+        #Create a form instance and populate it with data from the request
+        form = RenewBookForm(request.POST)
+
+        #Check if the form is valid
+        if form.is_valid():
+            # Process the data in form.cleaned_data as required
+            book_instance.due_back = form.cleaned_data['renewal_date']
+            book_instance.save()
+
+            return HttpResponseRedirect(reverse('all-borrowed'))
+    else:
+        #Set inital renewal date value
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = RenewBookForm(initial={'renewal_date':proposed_renewal_date})
+
+    context = {
+        'form':form,
+        'book_instance':book_instance
+    }
+
+    return render(request,'catalog/book_renew_librarian.html',context)
+
+
+"""
+Overide the template form using
+
+
+    template_name_suffix = '_update_form'
+
+"""
+
+class AuthorCreate(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
+    model = Author
+    fields = [
+        'first_name','last_name','date_of_birth','date_of_death'
+    ]
+    permission_required = ('can_add_author')
+    #Set inital values
+    initial = {'date_of_death':'11/06/2020'}
+
+class AuthorUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    model = Author
+    permission_required = ('can_change_author','can_delete_author','can_view_author')
+    fields = [
+        'first_name','last_name','date_of_birth','date_of_death'
+    ]
+
+class AuthorDelete(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
+    model = Author
+    permission_required = ('can_change_author','can_delete_author','can_view_author')
+    success_url = reverse_lazy('authors')
+
+
+class BookCreate(LoginRequiredMixin,PermissionRequiredMixin):
+    model = Book
+    permission_required = ('can_change_book','can_delete_book','can_view_book')
+    fields = [
+        'title','author','language','summary','isbn','genre'
+    ]
+
+class BookUpdate(LoginRequiredMixin,PermissionRequiredMixin):
+    model = Book
+    permission_required = ('can_change_book','can_delete_book','can_view_book')
+    fields = [
+        'first_name','last_name','date_of_birth','date_of_death'
+    ]
+
+class BookDelete(LoginRequiredMixin,PermissionRequiredMixin):
+    model = Book
+    permission_required = ('can_change_book','can_delete_book','can_view_book')
+    success_url = reverse_lazy('books')
