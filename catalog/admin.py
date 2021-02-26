@@ -34,14 +34,15 @@ class BookAdmin(admin.ModelAdmin):
 class BookInstanceAdmin(admin.ModelAdmin):
     #Displays a filter section on the adminstrator page
     list_filter = ('status', 'due_back')
-    list_display = ('book', 'status', 'due_back')
+
+    list_display = ('book', 'status', 'borrower', 'due_back', 'id')
 
     fieldsets = (
         (None, {
             'fields': ('book', 'imprint', 'id')
         }),
         ('Availability', {
-            'fields': ('status', 'due_back')
+            'fields': ('status', 'due_back','borrower')
         }),
     )
     
@@ -52,6 +53,7 @@ class GenreAdmin(admin.ModelAdmin):
     pass
 
 
+
 """
 admin.site.register(Book)
 admin.site.register(BookInstance)
@@ -59,3 +61,5 @@ admin.site.register(Genre)
 
 """
 admin.site.register(Language)
+
+

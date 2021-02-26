@@ -1,7 +1,9 @@
+from django.db import models
 from django.http.response import HttpResponse
 from django.shortcuts import render,HttpResponse
 from .models import Book,Author,BookInstance,Genre
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 
 # Create your views here.
 def index(request):
@@ -52,3 +54,21 @@ class AuthorListView(generic.ListView):
     contex_object_name = "author_list"
     template_name = "catalog/author_list.html"
     
+
+class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    #Override default list view query
+    def get_queryset(self):
+        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o')
+
+
+class LibrarianViewListView(PermissionRequiredMixin,generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/librarian_view.html'
+    permission_required = ('can_mark_returned')
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o')
+

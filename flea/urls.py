@@ -29,7 +29,8 @@ urlpatterns += [
 #Redirect to the catalog app
 from django.views.generic import RedirectView
 urlpatterns +=[
-    path('',RedirectView.as_view(url="catalog/",permanent=True))
+    path('',RedirectView.as_view(url="catalog/",permanent=True)),    
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 #Serve static files(CSS,Javascript,images)
