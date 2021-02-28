@@ -59,4 +59,4 @@ class RenewBookModelForm(forms.ModelForm):
 class BookModelForm(forms.ModelForm):
     class Meta:
         model = Book
-        feilds = ['title','author','language','summary','isbn','genre']
+        fields = ['title','author','language','summary','isbn','genre']

@@ -139,21 +139,21 @@ class AuthorDelete(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
     success_url = reverse_lazy('authors')
 
 
-class BookCreate(LoginRequiredMixin,PermissionRequiredMixin):
+class BookCreate(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     model = Book
     permission_required = ('can_change_book','can_delete_book','can_view_book')
     fields = [
         'title','author','language','summary','isbn','genre'
     ]
 
-class BookUpdate(LoginRequiredMixin,PermissionRequiredMixin):
+class BookUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     model = Book
     permission_required = ('can_change_book','can_delete_book','can_view_book')
     fields = [
         'first_name','last_name','date_of_birth','date_of_death'
     ]
 
-class BookDelete(LoginRequiredMixin,PermissionRequiredMixin):
+class BookDelete(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
     model = Book
     permission_required = ('can_change_book','can_delete_book','can_view_book')
     success_url = reverse_lazy('books')
