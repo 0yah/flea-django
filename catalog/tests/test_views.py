@@ -5,8 +5,61 @@ from django.urls import reverse
 from django.urls.base import resolve
 import datetime
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from catalog.models import Author,BookInstance, Book, Genre, Language
+import uuid
+
+class RenewBookInstancesViewTest(TestCase):
+    def setUp(self):
+        test_user1 = User.objects.create_user(username="testuser1",password="jkj#$DVFVd")
+        test_user2 = User.objects.create_user(username="testuser2",password="jkj#$DVFVd")
+
+        test_user1.save()
+        test_user2.save()
+
+        permission =Permission.objects.get(name="Set book as returned")
+
+        test_user2.user_permissions.add(permission)
+        test_user2.save()
+
+        #Create a book
+        test_author = Author.objects.create(first_name="John",last_name="Doe")
+        test_genre = Genre.objects.create(name="Fantasy")
+        test_language = Language.objects.create(name="English")
+        test_book = Book.objects.create(
+            title="Book Title",
+            summary="My Book summary",
+
+            isbn="AKKJKJ",
+            author=test_author,
+            language=test_language
+        )
+
+
+        #Create genre as a post-step
+        genre_objects_for_book = Genre.objects.all()
+        test_book.genre.set(genre_objects_for_book)
+        test_book.save()
+
+        #Create a bookinstance object for test_user1
+        return_date = datetime.date.today() + datetime.timedelta(days=5)
+        self.testbookinstance1 = BookInstance.objects.create(
+            book=test_book,
+            imprint="Unlikely Imprint, 2016",
+            due_back=return_date,
+            borrower=test_user1,
+            status="o"
+        )
+
+        #Create a bookinstance object for test_user2
+        return_date = datetime.date.today() + datetime.timedelta(days=5)
+        self.testbookinstance2 = BookInstance.objects.create(
+            book=test_book,
+            imprint="Unlikely Imprint, 2016",
+            due_back=return_date,
+            borrower=test_user2,
+            status="o"
+        )
 
 
 class LoanedBookInstanceByUserListViewTest(TestCase):
